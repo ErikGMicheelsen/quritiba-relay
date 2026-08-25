@@ -1,0 +1,17 @@
+{
+  "name": "quritiba-relay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Quritiba realtime relay (Hocuspocus/Yjs) — presence + live board sync.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@hocuspocus/server": "^4.3.0",
+    "@supabase/supabase-js": "^2.110.0"
+  }
+}
