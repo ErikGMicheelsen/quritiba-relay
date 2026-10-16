@@ -39,10 +39,26 @@ const server = new Server({
   address: "0.0.0.0",
   async onAuthenticate({ token, documentName }) {
     if (!admin) return { userId: null };
-    const qubeId = documentName.replace(/^qube-/, "");
     const { data, error } = await admin.auth.getUser(token);
     const user = data?.user;
     if (error || !user) throw new Error("Not signed in.");
+
+    // Campaign Lab canvas documents are named "campaign-<id>" and are owner-only
+    // (only the owner gets the editing canvas; everyone else gets the join view).
+    if (documentName.startsWith("campaign-")) {
+      const campaignId = documentName.slice("campaign-".length);
+      const { data: owned } = await admin
+        .from("campaigns")
+        .select("id")
+        .eq("id", campaignId)
+        .eq("owner_id", user.id)
+        .maybeSingle();
+      if (!owned) throw new Error("Not the owner of this campaign.");
+      return { userId: user.id };
+    }
+
+    // Qube canvas documents are named "qube-<id>" — a seat or ownership is required.
+    const qubeId = documentName.replace(/^qube-/, "");
     const { data: seat } = await admin
       .from("qube_members")
       .select("user_id")
